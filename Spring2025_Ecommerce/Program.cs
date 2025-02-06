@@ -41,9 +41,12 @@ namespace MyApp
                 {
                     case 'C':
                     case 'c':
+                        Console.WriteLine("Please enter the name, price, and quantity of the product you want to add.");
                         ProductServiceProxy.Current.AddOrUpdate(new Product
                         {
-                            Name = Console.ReadLine()
+                            Name = Console.ReadLine(),
+                            Price = double.Parse(Console.ReadLine()),
+                            Quantity = int.Parse(Console.ReadLine())
                         });
                         break;
                     case 'R':
