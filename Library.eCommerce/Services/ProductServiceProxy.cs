@@ -14,6 +14,7 @@ namespace Library.eCommerce.Services
             Products = new List<Product?>();
         }
 
+        //here
         private int LastKey
         {
             get

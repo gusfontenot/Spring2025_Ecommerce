@@ -16,6 +16,7 @@ namespace Spring2025_Ecommerce.Models
 
         public int Quantity { get; set; }
 
+        //here
         public string? Display
         {
             get

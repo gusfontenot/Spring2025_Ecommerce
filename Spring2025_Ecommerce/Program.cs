@@ -14,6 +14,8 @@ namespace MyApp
         static void Main(string[] args)
         {
 
+            //here
+
             Console.WriteLine("Welcome to Amazon!");
 
             Console.WriteLine("C. Create new inventory item");
