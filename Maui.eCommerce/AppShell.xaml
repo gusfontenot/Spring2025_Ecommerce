@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Maui.eCommerce"
+    xmlns:views="clr-namespace:Maui.eCommerce.Views"
     Shell.FlyoutBehavior="Disabled"
     Title="Maui.eCommerce">
 
@@ -11,5 +12,9 @@
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
+    <ShellContent
+        Title="Inventory"
+        ContentTemplate="{DataTemplate views:InventoryManagementView}"
+        Route="InventoryManagement" />
 
 </Shell>
