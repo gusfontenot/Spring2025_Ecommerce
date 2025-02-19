@@ -6,24 +6,42 @@ using System.Text;
 using System.Threading.Tasks;
 using Library.eCommerce.Services;
 using Spring2025_Ecommerce.Models;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace Maui.eCommerce.ViewModels
 {
-    public class InventoryManagementViewModel
+    public class InventoryManagementViewModel : INotifyPropertyChanged
     {
         public Product? SelectedProduct { get; set; }
         private ProductServiceProxy _svc = ProductServiceProxy.Current;
-        public List<Product?> Products
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            if(propertyName is null)
+            {
+                throw new ArgumentNullException(nameof(propertyName));
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public ObservableCollection<Product?> Products
         {
             get
             {
-                return _svc.Products;
+                return new ObservableCollection<Product?>(_svc.Products);
             }
         }
 
         public Product? Delete()
         {
-            return _svc.Delete(SelectedProduct?.Id ?? 0);
+            var item = _svc.Delete(SelectedProduct?.Id ?? 0); //goto the service and delete the item that is selected then go to front end and tell it I changed it
+            NotifyPropertyChanged("Products"); //this tells the front end I believe (hands the functionality off)
+            return item;
         }
     }
 }

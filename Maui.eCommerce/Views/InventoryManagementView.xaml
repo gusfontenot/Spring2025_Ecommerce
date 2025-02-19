@@ -30,6 +30,10 @@
             </ListView.ItemTemplate>
         </ListView>
         <Button
+            Text="Add"
+            Clicked="AddClicked"
+            />
+        <Button
             Text="Edit"
             />
         <Button
