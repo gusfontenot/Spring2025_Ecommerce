@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Library.eCommerce.Services;
 using Spring2025_Ecommerce.Models;
 
 namespace Maui.eCommerce.ViewModels
@@ -25,6 +26,11 @@ namespace Maui.eCommerce.ViewModels
         }
 
         public Product? Model { get; set; }
+
+        public void AddOrUpdate()
+        {
+            ProductServiceProxy.Current.AddOrUpdate(Model);
+        }
 
         public ProductViewModel()
         {
