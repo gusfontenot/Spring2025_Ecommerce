@@ -65,7 +65,7 @@ namespace Library.eCommerce.Services
             }
             else
             {
-                existingProduct.Quantity = existingProduct.Quantity + product.Quantity;
+                existingProduct.Quantity = product.Quantity;
                 existingProduct.Name = product.Name;
                 existingProduct.Price = product.Price;
             }

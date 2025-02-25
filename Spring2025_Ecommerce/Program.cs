@@ -57,14 +57,54 @@ namespace MyApp
                     case 'U':
                     case 'u':
                         //select one of the products
-                        Console.WriteLine("Which product would you like to update?");
+                        list.ForEach(Console.WriteLine);
+                        Console.WriteLine("Enter the Id of the product you would like to update.");
                         int selection = int.Parse(Console.ReadLine() ?? "-1");
                         var selectedProd = list.FirstOrDefault(p => p.Id == selection);
 
                         if (selectedProd != null)
                         {
-                            selectedProd.Name = Console.ReadLine() ?? "ERROR";
-                            ProductServiceProxy.Current.AddOrUpdate(selectedProd);
+                            Console.WriteLine("How would you like to update the product?");
+                            Console.WriteLine("1. Name");
+                            Console.WriteLine("2. Price");
+                            Console.WriteLine("3. Quantity");
+                            Console.WriteLine("Enter your number choice, please.");
+
+                            int updateChoice = int.Parse(Console.ReadLine() ?? "-1");
+
+                            if(updateChoice == 1)
+                            {
+                                Console.WriteLine("Enter the updated name.");
+                                selectedProd.Name = Console.ReadLine() ?? "ERROR";
+                                ProductServiceProxy.Current.AddOrUpdate(selectedProd);
+                            }
+                            else if(updateChoice == 2)
+                            {
+                                Console.WriteLine("Enter the updated price.");
+                                selectedProd.Price = double.Parse(Console.ReadLine() ?? "-1");
+                                ProductServiceProxy.Current.AddOrUpdate(selectedProd);
+                            }
+                            else if(updateChoice == 3)
+                            {
+                                Console.WriteLine("Enter the updated quantity.");
+                                selectedProd.Quantity = int.Parse(Console.ReadLine() ?? "-1");
+                                ProductServiceProxy.Current.AddOrUpdate(selectedProd);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid choice. Returning to the menu.");
+
+                                Console.WriteLine("C. Create new inventory item");
+                                Console.WriteLine("R. Read all inventory items");
+                                Console.WriteLine("U. Update an inventory item");
+                                Console.WriteLine("D. Delete an inventory item");
+                                Console.WriteLine("A. Add an item to your shopping cart");
+                                Console.WriteLine("T. Remove an item from your shopping cart");
+                                Console.WriteLine("S. Show the contents of your shopping cart");
+                                Console.WriteLine("X. Checkout");
+                                Console.WriteLine("Q. Quit");
+                            }
+
                         }
                         break;
                     case 'D':
@@ -78,6 +118,7 @@ namespace MyApp
                     case 'A':
                     case 'a':
                         Console.WriteLine("Choose which product you would like to add to your cart (Enter the ID Number): ");
+                        list.ForEach(Console.WriteLine);
                         int addThisProduct = int.Parse(Console.ReadLine() ?? "-1");
                         var productSelected = list.FirstOrDefault(p => p.Id == addThisProduct);
 
@@ -94,9 +135,16 @@ namespace MyApp
                         break;
                     case 'T':
                     case 't':
+                        if(customerCart.cartIsEmpty() == true)
+                        {
+                            Console.WriteLine("Your cart is empty.");
+                            break;
+                        }
+
                         Console.WriteLine("Choose which product you would like to remove from the cart (Enter the ID Number): ");
+                        customerCart.PrintCart();
                         int removeThisProduct = int.Parse(Console.ReadLine() ?? "-1");
-                        Console.Write($"Product to be removed ID: {removeThisProduct}");
+                        Console.WriteLine($"Product to be removed ID: {removeThisProduct}");
 
                         if (customerCart.ItemsInCart.ContainsKey(removeThisProduct) == false)
                         {
@@ -106,6 +154,7 @@ namespace MyApp
                         {
                             Console.WriteLine("Please enter the quantity you would like to remove: ");
                             int quantitySpecified = int.Parse(Console.ReadLine());
+
                             customerCart.removeFromCart(removeThisProduct, quantitySpecified);
                         }
                         break;

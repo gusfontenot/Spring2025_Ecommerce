@@ -63,9 +63,9 @@ namespace Library.eCommerce.Models
 
         public bool removeFromCart(int itemID, int itemQuantity)
         {
-            if (ItemsInCart.ContainsKey(itemID))
+            if(ItemsInCart.ContainsKey(itemID) == false)
             {
-                Console.WriteLine($"{ItemsInCart[itemID]} is not in your cart");
+                Console.WriteLine("The specified item is not in your cart.");
                 return false;
             }
 
@@ -81,7 +81,16 @@ namespace Library.eCommerce.Models
                 return false;
             }
 
-            ItemsInCart[itemID] = ItemsInCart[itemID] - itemQuantity;
+            var product = ProductServiceProxy.Current.GetById(itemID);
+            if(product == null)
+            {
+                Console.WriteLine("Product appears to be null, ERROR.");
+                return false;
+            }
+
+            ItemsInCart[itemID] -= itemQuantity;
+            product.Quantity += itemQuantity;
+            ProductServiceProxy.Current.AddOrUpdate(product);
 
             if (ItemsInCart[itemID] == 0)
             {
@@ -110,6 +119,18 @@ namespace Library.eCommerce.Models
                     Console.WriteLine($"ID: {x.Key} \t Name: {product.Name} \t Quantity: {x.Value} \t Price: {product.Price} \t ");
                 }
 
+            }
+        }
+
+        public bool cartIsEmpty()
+        {
+            if(ItemsInCart.Any() == false)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
