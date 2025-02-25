@@ -37,4 +37,9 @@ public partial class InventoryManagementView : ContentPage
         var productId = (BindingContext as InventoryManagementViewModel)?.SelectedProduct?.Id;
         Shell.Current.GoToAsync($"//Product?productId={productId}");
     }
+
+    private void SearchClicked(object sender, EventArgs e)
+    {
+        (BindingContext as InventoryManagementViewModel)?.RefreshProductList();
+    }
 }
