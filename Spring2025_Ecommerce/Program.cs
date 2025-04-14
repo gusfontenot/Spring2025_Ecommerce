@@ -41,7 +41,7 @@ namespace MyApp
                 {
                     case 'C':
                     case 'c':
-                        Console.WriteLine("Please enter the name, price, and quantity of the product you want to add.");
+                        Console.WriteLine("Please enter the name, price, and quantity of the product you want to add. Separate the specifications by hitting enter for each.");
                         ProductServiceProxy.Current.AddOrUpdate(new Product
                         {
                             Name = Console.ReadLine(),
@@ -111,7 +111,8 @@ namespace MyApp
                     case 'd':
                         //select one of the products
                         //throw it away
-                        Console.WriteLine("Which product would you like to update?");
+                        list.ForEach(Console.WriteLine);
+                        Console.WriteLine("Which product would you like to delete from the inventory? (Enter the product ID#)");
                         selection = int.Parse(Console.ReadLine() ?? "-1");
                         ProductServiceProxy.Current.Delete(selection);
                         break;

@@ -139,18 +139,20 @@ namespace Library.eCommerce.Models
         public void printReceipt()
         {
             Console.WriteLine("-----Your Receipt-----");
-            double total = 0;
+            double subTotal = 0;
             foreach (var x in ItemsInCart)
             {
                 var product = ProductServiceProxy.Current.Products.FirstOrDefault(p => p.Id == x.Key);
                 if (product != null)
                 {
                     Console.WriteLine($"ID: {x.Key} \t Name: {product.Name} \t Quantity: {x.Value} \t Price: {product.Price} \t ");
-                    total += (x.Value * product.Price);
+                    subTotal += (x.Value * product.Price);
                 }
             }
 
-            Console.WriteLine($"Total(sales tax included): {total * 1.07}");
+            double total = subTotal * 1.07;
+
+            Console.WriteLine($"Total(sales tax included): {total:F2}");
         }
         public override string ToString()
         {
