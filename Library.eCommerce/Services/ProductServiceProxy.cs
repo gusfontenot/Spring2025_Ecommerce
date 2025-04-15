@@ -91,6 +91,18 @@ namespace Library.eCommerce.Services
             return Products.FirstOrDefault(p => p.Id == id);
         }
 
+        public bool isInventoryEmpty()
+        {
+            if (Products.Any() == true)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
     }
 
 

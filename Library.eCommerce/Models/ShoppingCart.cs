@@ -63,7 +63,7 @@ namespace Library.eCommerce.Models
 
         public bool removeFromCart(int itemID, int itemQuantity)
         {
-            if(ItemsInCart.ContainsKey(itemID) == false)
+            if (ItemsInCart.ContainsKey(itemID) == false)
             {
                 Console.WriteLine("The specified item is not in your cart.");
                 return false;
@@ -82,7 +82,7 @@ namespace Library.eCommerce.Models
             }
 
             var product = ProductServiceProxy.Current.GetById(itemID);
-            if(product == null)
+            if (product == null)
             {
                 Console.WriteLine("Product appears to be null, ERROR.");
                 return false;
@@ -109,7 +109,7 @@ namespace Library.eCommerce.Models
                 return;
             }
 
-            Console.WriteLine("-------Cart Contents-------");
+            Console.WriteLine("-------Shopping Cart Contents-------");
 
             foreach (var x in ItemsInCart)
             {
@@ -124,7 +124,7 @@ namespace Library.eCommerce.Models
 
         public bool cartIsEmpty()
         {
-            if(ItemsInCart.Any() == false)
+            if (ItemsInCart.Any() == false)
             {
                 return true;
             }
@@ -138,7 +138,7 @@ namespace Library.eCommerce.Models
         //ProductServiceProxy = name and prive
         public void printReceipt()
         {
-            Console.WriteLine("-----Your Receipt-----");
+            Console.WriteLine("------Customer Receipt------");
             double subTotal = 0;
             foreach (var x in ItemsInCart)
             {

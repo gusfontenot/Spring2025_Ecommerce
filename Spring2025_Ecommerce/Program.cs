@@ -33,9 +33,15 @@ namespace MyApp
             ShoppingCart customerCart = new ShoppingCart();
 
             char choice;
+            bool loopRunning = true;
+
             do
             {
                 string? input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    continue; //in case the user presses enter before their intended input, it will not crash
+                }
                 choice = input[0];
                 switch (choice)
                 {
@@ -51,12 +57,25 @@ namespace MyApp
                         break;
                     case 'R':
                     case 'r':
-
-                        list.ForEach(Console.WriteLine);
+                        if (ProductServiceProxy.Current.isInventoryEmpty() == true)
+                        {
+                            Console.WriteLine("The inventory is currently empty.");
+                            break;
+                        }
+                        else
+                        {
+                            list.ForEach(Console.WriteLine);
+                        }
                         break;
                     case 'U':
                     case 'u':
                         //select one of the products
+                        if (ProductServiceProxy.Current.isInventoryEmpty() == true)
+                        {
+                            Console.WriteLine("The inventory is currently empty. No products to be updated.");
+                            break;
+                        }
+
                         list.ForEach(Console.WriteLine);
                         Console.WriteLine("Enter the Id of the product you would like to update.");
                         int selection = int.Parse(Console.ReadLine() ?? "-1");
@@ -72,19 +91,19 @@ namespace MyApp
 
                             int updateChoice = int.Parse(Console.ReadLine() ?? "-1");
 
-                            if(updateChoice == 1)
+                            if (updateChoice == 1)
                             {
                                 Console.WriteLine("Enter the updated name.");
                                 selectedProd.Name = Console.ReadLine() ?? "ERROR";
                                 ProductServiceProxy.Current.AddOrUpdate(selectedProd);
                             }
-                            else if(updateChoice == 2)
+                            else if (updateChoice == 2)
                             {
                                 Console.WriteLine("Enter the updated price.");
                                 selectedProd.Price = double.Parse(Console.ReadLine() ?? "-1");
                                 ProductServiceProxy.Current.AddOrUpdate(selectedProd);
                             }
-                            else if(updateChoice == 3)
+                            else if (updateChoice == 3)
                             {
                                 Console.WriteLine("Enter the updated quantity.");
                                 selectedProd.Quantity = int.Parse(Console.ReadLine() ?? "-1");
@@ -111,6 +130,12 @@ namespace MyApp
                     case 'd':
                         //select one of the products
                         //throw it away
+                        if (ProductServiceProxy.Current.isInventoryEmpty() == true)
+                        {
+                            Console.WriteLine("The inventory is currently empty. No products to be deleted.");
+                            break;
+                        }
+
                         list.ForEach(Console.WriteLine);
                         Console.WriteLine("Which product would you like to delete from the inventory? (Enter the product ID#)");
                         selection = int.Parse(Console.ReadLine() ?? "-1");
@@ -118,6 +143,11 @@ namespace MyApp
                         break;
                     case 'A':
                     case 'a':
+                        if (ProductServiceProxy.Current.isInventoryEmpty() == true)
+                        {
+                            Console.WriteLine("The inventory is currently empty. No products to add to your cart.");
+                            break;
+                        }
                         Console.WriteLine("Choose which product you would like to add to your cart (Enter the ID Number): ");
                         list.ForEach(Console.WriteLine);
                         int addThisProduct = int.Parse(Console.ReadLine() ?? "-1");
@@ -136,7 +166,7 @@ namespace MyApp
                         break;
                     case 'T':
                     case 't':
-                        if(customerCart.cartIsEmpty() == true)
+                        if (customerCart.cartIsEmpty() == true)
                         {
                             Console.WriteLine("Your cart is empty.");
                             break;
@@ -165,16 +195,22 @@ namespace MyApp
                         break;
                     case 'X':
                     case 'x':
+                        if (customerCart.cartIsEmpty() == true)
+                        {
+                            Console.WriteLine("No items in the cart to checkout. Have a nice day!");
+                        }
                         customerCart.printReceipt();
+                        loopRunning = false;
                         break;
                     case 'Q':
                     case 'q':
+                        loopRunning = false;
                         break;
                     default:
                         Console.WriteLine("Error: Unknown Command");
                         break;
                 }
-            } while (choice != 'Q' && choice != 'q');
+            } while (loopRunning == true);
 
             Console.ReadLine();
         }
