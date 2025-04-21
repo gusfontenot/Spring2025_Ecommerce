@@ -16,16 +16,12 @@ namespace Library.eCommerce.Services
     {
         private ProductServiceProxy()
         {
-            var productPayload = new WebRequestHandler().Get("/Inventory").Result;
-            Products = JsonConvert.DeserializeObject<List<Item>>(productPayload) ?? new List<Item?>();
-
-
-            //Products = new List<Item?>
-            //{
-            //    new Item{ Product = new ProductDTO{Id = 1, Name = "Product 1"}, Id = 1, Quantity = 1 },
-            //    new Item{ Product = new ProductDTO{Id = 2, Name = "Product 2"}, Id = 2, Quantity = 2 },
-            //    new Item{ Product = new ProductDTO{Id = 3, Name = "Product 3"}, Id = 3, Quantity = 3 },
-            //};
+            Products = new List<Item?>
+                {
+                  new Item{ Product = new ProductDTO{Id = 1, Name = "Product 1"}, Id = 1, Quantity = 1 },
+                  new Item{ Product = new ProductDTO{Id = 2, Name = "Product 2"}, Id = 2, Quantity = 2 },
+                  new Item{ Product = new ProductDTO{Id = 3, Name = "Product 3"}, Id = 3, Quantity = 3 },
+            };
         }
 
         private static ProductServiceProxy? instance;
@@ -51,25 +47,36 @@ namespace Library.eCommerce.Services
 
         public Item AddOrUpdate(Item item)
         {
-            //Call the web service
-            var response = new WebRequestHandler().Post("/Inventory", item).Result;
-            var newItem = JsonConvert.DeserializeObject<Item>(response);
-            if(newItem == null)
+            if(item == null)
             {
                 return item;
             }
+
             if (item.Id == 0)
             {
-                Products.Add(newItem);
+                int newId = Products.Any() ? Products.Max(p => p?.Id ?? 0) + 1 : 1;
+                item.Id = newId;
+                if(item.Product != null)
+                {
+                    item.Product.Id = newId;
+                }
+
+                Products.Add(new Item(item));
             }
             else
             {
-                var existingItem = Products.FirstOrDefault(p => p.Id == item.Id);
-                var index = Products.IndexOf(existingItem);
-                Products.RemoveAt(index);
-                Products.Insert(index, new Item(newItem));
+                var existingItem = Products.FirstOrDefault(p => p?.Id == item.Id);
+                if(existingItem == null)
+                {
+                    Products.Add(new Item(item));
+                }
+                else
+                {
+                    var index = Products.IndexOf(existingItem);
+                    Products[index] = new Item(item);
+                }
+                    
             }
-
                 return item;
         }
 
@@ -80,12 +87,10 @@ namespace Library.eCommerce.Services
                 return null;
             }
 
-            var result = new WebRequestHandler().Delete($"/Inventory/{id}").Result;
-
             Item? product = Products.FirstOrDefault(p => p.Id == id);
             Products.Remove(product);
 
-            return JsonConvert.DeserializeObject<Item>(result);
+            return product;
         }
 
         public Item? GetById(int id)

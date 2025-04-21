@@ -86,5 +86,30 @@ namespace Maui.eCommerce.ViewModels
                 }
             }
         }
+
+        public void ReturnAll()
+        {
+            if(SelectedCartItem == null)
+            {
+                return;
+            }
+
+            bool success = _cartSvc.ReturnAll(SelectedCartItem.Model);
+        
+            if(success == true)
+            {
+                NotifyPropertyChanged(nameof(Inventory));
+                NotifyPropertyChanged(nameof(ShoppingCart));
+            }
+        }
+
+        public string Checkout()
+        {
+            string receipt = _cartSvc.MakeReceipt();
+            _cartSvc.CartItems.Clear();
+            NotifyPropertyChanged(nameof(Inventory));
+            NotifyPropertyChanged(nameof(ShoppingCart));
+            return receipt;
+        }
     }
 }

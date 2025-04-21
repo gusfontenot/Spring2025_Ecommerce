@@ -24,4 +24,21 @@ public partial class ShoppingManagementView : ContentPage
     {
         (BindingContext as ShoppingManagementViewModel).RefreshUX();
     }
+
+    private void ReturnAllClicked(object sender, EventArgs e)
+    {
+        (BindingContext as ShoppingManagementViewModel)?.ReturnAll();
+    }
+
+    private void CheckoutClicked(object sender, EventArgs e)
+    {
+        var vm = BindingContext as ShoppingManagementViewModel;
+        if (vm == null)
+        {
+            return;
+        }
+        string receipt = vm.Checkout();
+
+        Shell.Current.GoToAsync($"//Receipt?receipt={(receipt)}");
+    }
 }

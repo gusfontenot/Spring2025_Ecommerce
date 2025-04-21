@@ -48,7 +48,7 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="10*"/>
-                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <ListView Grid.Row="0"
                 ItemsSource="{Binding ShoppingCart}"
@@ -62,7 +62,11 @@
                     </DataTemplate>
                 </ListView.ItemTemplate> 
             </ListView>
-            <Button Grid.Row="1" Text="-" Clicked="RemoveFromCartClicked"/>
+            <VerticalStackLayout Grid.Row="1">
+                <Button Text="-" Clicked="RemoveFromCartClicked"/>
+                <Button Text="Return All" Clicked="ReturnAllClicked"/>
+                <Button Text="Checkout" Clicked="CheckoutClicked"/>
+            </VerticalStackLayout>
         </Grid>
         
     </Grid>

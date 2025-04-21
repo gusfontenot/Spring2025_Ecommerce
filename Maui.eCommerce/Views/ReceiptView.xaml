@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui.eCommerce.Views.ReceiptView"
+             Title="Receipt">
+    <ScrollView>
+        <VerticalStackLayout Padding="16">
+            <Label Text="{Binding ReceiptText}"/>
+
+            <Button Text="Close"
+                    HorizontalOptions="Center"
+                    Clicked="CloseClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -43,6 +43,8 @@ namespace Library.eCommerce.DTO
         {
             Name = p.Name;
             Id = p.Id;
+            Price = p.Price;
+            Quantity = p.Quantity;
         }
 
         public override string ToString()

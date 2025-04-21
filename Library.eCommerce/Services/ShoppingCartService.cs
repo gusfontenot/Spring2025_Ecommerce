@@ -12,6 +12,9 @@ namespace Library.eCommerce.Services
     {
         private ProductServiceProxy _prodSvc = ProductServiceProxy.Current;
         private List<Item> items;
+        public event EventHandler? InvChange;
+        public event EventHandler? CartChange;
+
         public List<Item> CartItems
         {
             get
@@ -88,6 +91,58 @@ namespace Library.eCommerce.Services
             }
 
             return itemToReturn;
+        }
+
+        public bool ReturnAll(Item cartItem)
+        {
+            if(cartItem == null)
+            {
+                return false;
+            }
+
+            var existingItem = CartItems.FirstOrDefault(i => i.Id == cartItem.Id);
+            if(existingItem == null)
+            {
+                return false;
+            }
+
+            var invItem = _prodSvc.GetById(existingItem.Id);
+            if(invItem != null)
+            {
+                invItem.Quantity += existingItem.Quantity ?? 0;
+            }
+
+            CartItems.Remove(existingItem);
+            updateEvents();
+            return true;
+        }
+
+        public string MakeReceipt()
+        {
+            //need stringbuild
+            var stringBuild = new System.Text.StringBuilder();
+            double subtotal = 0;
+
+            foreach(var i in CartItems)
+            {
+                var price = i.Product!.Price;
+                var quantity = i.Quantity ?? 0;
+                subtotal += (price * quantity);
+                stringBuild.AppendLine($"{i.Product.Name,-18} x{quantity,-3}  {price,6:C2}");
+            }
+
+            var total = Math.Round(subtotal * 1.07, 2);
+
+            stringBuild.AppendLine(new string('-', 30));
+            stringBuild.AppendLine($"{"Subtotal:",-22}{subtotal,10:C2}");
+            stringBuild.AppendLine($"{"Total:",-22}{total,10:C2}");
+            return stringBuild.ToString();
+        }
+
+        private void updateEvents()
+        {
+            InvChange?.Invoke(this, EventArgs.Empty);
+            CartChange?.Invoke(this, EventArgs.Empty);
         }
 
     }
