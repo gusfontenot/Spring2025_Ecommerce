@@ -24,6 +24,11 @@ namespace Library.eCommerce.Services
             };
         }
 
+        //add to final
+        public event EventHandler<int>? ProductRemoved;
+        public event EventHandler? InventoryChanged;
+        //add to final
+
         private static ProductServiceProxy? instance;
         private static object instanceLock = new object();
         public static ProductServiceProxy Current
@@ -88,7 +93,12 @@ namespace Library.eCommerce.Services
             }
 
             Item? product = Products.FirstOrDefault(p => p.Id == id);
-            Products.Remove(product);
+            if (product != null)
+            {
+                Products.Remove(product);
+                InventoryChanged?.Invoke(this, EventArgs.Empty); //notifying of the change
+                ProductRemoved?.Invoke(this, id); //notify product removed
+            }
 
             return product;
         }

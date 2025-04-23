@@ -33,7 +33,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Text="{Binding Model.Id}"/>
                                 <Label Grid.Column="1" Text="{Binding Model.Product.Name}"/>
-                                <Label Grid.Column="2" Text="x"/>
+                                <Label Grid.Column="2" Text="{Binding Model.Product.Price, StringFormat='${0:F2}'}"/>
                                 <Label Grid.Column="3" Text="{Binding Model.Quantity}"/>
                                 <Button Grid.Column="4" Text="+" Command="{Binding AddCommand}" Clicked="InLineAddClicked"/>
                             </Grid>
@@ -66,6 +66,7 @@
                 <Button Text="-" Clicked="RemoveFromCartClicked"/>
                 <Button Text="Return All" Clicked="ReturnAllClicked"/>
                 <Button Text="Checkout" Clicked="CheckoutClicked"/>
+                <Button Text="Go Back" Clicked="GoBackClicked"/>
             </VerticalStackLayout>
         </Grid>
         

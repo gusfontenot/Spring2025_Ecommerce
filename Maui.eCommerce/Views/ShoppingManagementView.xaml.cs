@@ -41,4 +41,9 @@ public partial class ShoppingManagementView : ContentPage
 
         Shell.Current.GoToAsync($"//Receipt?receipt={(receipt)}");
     }
+
+    private void GoBackClicked(object sender, EventArgs e)
+    {
+        Shell.Current.GoToAsync("//MainPage");
+    }
 }

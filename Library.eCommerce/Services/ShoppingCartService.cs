@@ -38,6 +38,19 @@ namespace Library.eCommerce.Services
         private ShoppingCartService() 
         {
             items = new List<Item>();
+            ProductServiceProxy.Current.ProductRemoved += OnProductRemoved;
+        }
+
+        private void OnProductRemoved(object? sender, int productId)
+        {
+            var toRemove = items.FirstOrDefault(i => i.Id == productId);
+            if(toRemove != null)
+            {
+                items.Remove(toRemove);
+                updateEvents();
+            }
+            
+            CartChange?.Invoke(this, EventArgs.Empty);
         }
 
         //Add or update function for the users shopping cart
@@ -125,10 +138,29 @@ namespace Library.eCommerce.Services
 
             foreach(var i in CartItems)
             {
-                var price = i.Product!.Price;
+                //add to final
+                var checkInv = _prodSvc.GetById(i.Id);
+                if(checkInv == null)
+                {
+                    continue;
+                }
+
+                //add to final
                 var quantity = i.Quantity ?? 0;
+                if(quantity < 1)
+                {
+                    continue;
+                }
+
+                var price = i.Product!.Price;
                 subtotal += (price * quantity);
                 stringBuild.AppendLine($"{i.Product.Name,-18} x{quantity,-3}  {price,6:C2}");
+            }
+
+            //add to final
+            if(subtotal == 0)
+            {
+                return "Your shopping cart is empty - no products to purchase.";
             }
 
             var total = Math.Round(subtotal * 1.07, 2);

@@ -18,6 +18,13 @@ namespace Maui.eCommerce.ViewModels
         public ItemViewModel? SelectedItem { get; set; }
         public ItemViewModel? SelectedCartItem { get; set; }
 
+        //probably add this stuff
+        public ShoppingManagementViewModel()
+        {
+            ProductServiceProxy.Current.InventoryChanged += (_, _) => RefreshUX();
+            ShoppingCartService.Current.CartChange += (_, _) => RefreshUX();
+        }
+
         public ObservableCollection<ItemViewModel?> Inventory
         {
             get
