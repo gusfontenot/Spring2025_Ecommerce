@@ -14,6 +14,9 @@
             <Button
                 Text="Shop"
                 Clicked="ShopClicked"/>
+            <Button
+                Text="Sales Tax Rate"
+                Clicked="TaxRateClicked"/>
         </VerticalStackLayout>
     </ScrollView>
 

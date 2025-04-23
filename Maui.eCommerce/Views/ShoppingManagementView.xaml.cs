@@ -41,4 +41,26 @@ public partial class ShoppingManagementView : ContentPage
 
         Shell.Current.GoToAsync($"//Receipt?receipt={(receipt)}");
     }
+
+    private void SortChanged(object sender, EventArgs e)
+    {
+        var picker = sender as Picker;
+        var selected = picker?.SelectedItem as string;
+
+        if(!string.IsNullOrEmpty(selected))
+        {
+            (BindingContext as ShoppingManagementViewModel)?.SetSort(selected);
+        }
+    }
+
+    private void AddNewCartClicked(object sender, EventArgs e)
+    {
+        var name = NewCartNameEntry.Text?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            (BindingContext as ShoppingManagementViewModel)?.AddNewCart(name);
+            NewCartNameEntry.Text = string.Empty;
+        }
+    }
 }

@@ -42,4 +42,25 @@ public partial class InventoryManagementView : ContentPage
     {
         (BindingContext as InventoryManagementViewModel)?.RefreshProductList();
     }
+
+    private void SortChanged(object sender, EventArgs e)
+    {
+        var picker = sender as Picker;
+        if(picker == null)
+        {
+            return;
+        }
+
+        var selected = picker.SelectedItem as string;
+
+        if(selected == "Price")
+        {
+            (BindingContext as InventoryManagementViewModel)?.SetSort(InventoryManagementViewModel.SortOption.Price);
+        }
+        else
+        {
+            (BindingContext as InventoryManagementViewModel)?.SetSort(InventoryManagementViewModel.SortOption.Name);
+        }
+
+    }
 }

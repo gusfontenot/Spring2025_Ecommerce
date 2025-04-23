@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Library.eCommerce.Services;
@@ -23,7 +22,7 @@ namespace Maui.eCommerce.ViewModels
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            if(propertyName is null)
+            if (propertyName is null)
             {
                 throw new ArgumentNullException(nameof(propertyName));
             }
@@ -36,19 +35,41 @@ namespace Maui.eCommerce.ViewModels
             NotifyPropertyChanged(nameof(Products));
         }
 
+        public enum SortOption
+        {
+            Name,
+            Price
+        }
+
+        public SortOption SelectedSortOption { get; set; } = SortOption.Name;
+
         public ObservableCollection<Item?> Products
         {
             get
             {
-                var filteredList = _svc.Products.Where(p => p?.Product?.Name?.ToLower().Contains(Query?.ToLower() ?? string.Empty) ?? false);
-                return new ObservableCollection<Item?>(filteredList);
+                var filtered = _svc.Products
+                    .Where(p => p?.Product?.Name?.ToLower().Contains(Query?.ToLower() ?? string.Empty) ?? false);
+
+                IEnumerable<Item?> sorted = SelectedSortOption switch
+                {
+                    SortOption.Price => filtered.OrderBy(p => p?.Product?.Price),
+                    _ => filtered.OrderBy(p => p?.Product?.Name)
+                };
+
+                return new ObservableCollection<Item?>(sorted);
             }
+        }
+
+        public void SetSort(SortOption option)
+        {
+            SelectedSortOption = option;
+            RefreshProductList();
         }
 
         public Item? Delete()
         {
-            var item = _svc.Delete(SelectedProduct?.Id ?? 0); //goto the service and delete the item that is selected then go to front end and tell it I changed it
-            NotifyPropertyChanged("Products"); //this tells the front end I believe (hands the functionality off)
+            var item = _svc.Delete(SelectedProduct?.Id ?? 0);
+            NotifyPropertyChanged(nameof(Products));
             return item;
         }
     }

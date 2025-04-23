@@ -18,6 +18,39 @@ namespace Maui.eCommerce.ViewModels
         public ItemViewModel? SelectedItem { get; set; }
         public ItemViewModel? SelectedCartItem { get; set; }
 
+        //sort begin
+        public string SortOption { get; set; } = "Name";
+
+        public ObservableCollection<ItemViewModel?> Inventory =>
+        new(_invSvc.Products
+            .Where(i => i?.Quantity > 0)
+            .OrderBy(i => SortOption == "Price" ? i?.Product.Price : 0)
+            .ThenBy(i => SortOption == "Name" ? i?.Product.Name : "")
+            .Select(m => new ItemViewModel(m)));
+
+        public ObservableCollection<ItemViewModel?> ShoppingCart =>
+            new(_cartSvc.CartItems
+                .Where(i => i?.Quantity > 0)
+                .OrderBy(i => SortOption == "Price" ? i?.Product.Price : 0)
+                .ThenBy(i => SortOption == "Name" ? i?.Product.Name : "")
+                .Select(m => new ItemViewModel(m)));
+
+        //sort end
+
+        public static event Action? RefreshRequested;
+        internal static void RefreshStatic()
+        {
+            RefreshRequested?.Invoke();
+        }
+
+        public ShoppingManagementViewModel()
+        {
+            _cartSvc.InvChange += (_, _) => RefreshUX();
+            _cartSvc.CartChange += (_, _) => RefreshUX();
+            RefreshRequested += RefreshUX;   
+        }
+
+        /*
         public ObservableCollection<ItemViewModel?> Inventory
         {
             get
@@ -37,8 +70,24 @@ namespace Maui.eCommerce.ViewModels
                     );
             }
         }
+        */
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public List<string> CartNames => _cartSvc.AllNames;
+
+        public string SelectedCartName
+        {
+            get
+            {
+                return _cartSvc.CurrentCart;
+            }
+            set
+            {
+                _cartSvc.SwitchCart(value);
+                RefreshUX();
+            }
+        }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
@@ -111,5 +160,24 @@ namespace Maui.eCommerce.ViewModels
             NotifyPropertyChanged(nameof(ShoppingCart));
             return receipt;
         }
+
+        //part of the sort as well
+        public void SetSort(string option)
+        {
+            SortOption = option;
+            RefreshUX();
+        }
+
+        public void AddNewCart(string name)
+        {
+            if(!string.IsNullOrWhiteSpace(name) && !_cartSvc.AllNames.Contains(name))
+            {
+                _cartSvc.SwitchCart(name);  // this creates and switches
+                NotifyPropertyChanged(nameof(CartNames));
+                NotifyPropertyChanged(nameof(SelectedCartName));
+                RefreshUX();
+            }
+        }
+
     }
 }

@@ -13,10 +13,21 @@
         <!--Store-->
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="10*"/>
-                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ListView Grid.Row="0"
+
+            <Picker Grid.Row="0"
+                    Title="Sort Inventory"
+                    SelectedIndexChanged="SortChanged">
+                <Picker.Items>
+                    <x:String>Name</x:String>
+                    <x:String>Price</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <ListView Grid.Row="1"
                 ItemsSource="{Binding Inventory}"
                 SelectedItem="{Binding SelectedItem}"
             >
@@ -29,28 +40,55 @@
                                     <ColumnDefinition Width="5*"/>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
+                                    <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Text="{Binding Model.Id}"/>
                                 <Label Grid.Column="1" Text="{Binding Model.Product.Name}"/>
-                                <Label Grid.Column="2" Text="x"/>
+                                <Label Grid.Column="2" Text="{Binding Model.Product.Price, StringFormat='${0:F2}'}"/>
                                 <Label Grid.Column="3" Text="{Binding Model.Quantity}"/>
-                                <Button Grid.Column="4" Text="+" Command="{Binding AddCommand}" Clicked="InLineAddClicked"/>
+                                <Entry Grid.Column="4" Text="{Binding QuantityText}" HorizontalTextAlignment="Center" />
+                                <Button Grid.Column="5" Text="+" Command="{Binding AddCommand}" Clicked="InLineAddClicked"/>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Button Grid.Row="1" Text="+" Clicked="AddToCartClicked"/>
+            <Button Grid.Row="2" Text="+" Clicked="AddToCartClicked"/>
         </Grid>
         
         <!--User Shopping Cart-->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="10*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ListView Grid.Row="0"
+
+            <HorizontalStackLayout Grid.Row="0" Spacing="6" Padding="0,5">
+                <Entry x:Name="NewCartNameEntry"
+                   Placeholder="New cart name"
+                   WidthRequest="140" />
+                <Button Text="+" Clicked="AddNewCartClicked" />
+            </HorizontalStackLayout>
+
+            <Picker Grid.Row="1"
+                Title="Select Cart"
+                ItemsSource="{Binding CartNames}"
+                SelectedItem="{Binding SelectedCartName}" />            
+            
+            <Picker Grid.Row="2"
+                Title="Sort Cart"
+                SelectedIndexChanged="SortChanged">
+                <Picker.Items>
+                    <x:String>Name</x:String>
+                    <x:String>Price</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <ListView Grid.Row="3"
                 ItemsSource="{Binding ShoppingCart}"
                 SelectedItem="{Binding SelectedCartItem}"
              >   
@@ -62,7 +100,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate> 
             </ListView>
-            <VerticalStackLayout Grid.Row="1">
+            <VerticalStackLayout Grid.Row="4">
                 <Button Text="-" Clicked="RemoveFromCartClicked"/>
                 <Button Text="Return All" Clicked="ReturnAllClicked"/>
                 <Button Text="Checkout" Clicked="CheckoutClicked"/>

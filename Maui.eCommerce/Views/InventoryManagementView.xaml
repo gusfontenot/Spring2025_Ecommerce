@@ -15,6 +15,12 @@
             <Button Text="Search" Grid.Column="1" Clicked="SearchClicked"/>
             <Grid/>
         </Grid>
+        <Picker Title="Sort By" SelectedIndexChanged="SortChanged">
+            <Picker.Items>
+                <x:String>Name</x:String>
+                <x:String>Price</x:String>
+            </Picker.Items>
+        </Picker>
         <ListView
             ItemsSource="{Binding Products}"
             SelectedItem="{Binding SelectedProduct}"

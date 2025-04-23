@@ -11,10 +11,47 @@ namespace Library.eCommerce.Services
     public class ShoppingCartService
     {
         private ProductServiceProxy _prodSvc = ProductServiceProxy.Current;
-        private List<Item> items;
         public event EventHandler? InvChange;
         public event EventHandler? CartChange;
 
+        //change carts implementation
+        private Dictionary<string, List<Item>> carts = new();
+        private string currentCart = "Default";
+
+        private ShoppingCartService()
+        {
+            carts = new Dictionary<string, List<Item>>();
+            currentCart = "Default";
+            carts[currentCart] = new List<Item>();
+        }
+        public string CurrentCart
+        {
+            get
+            {
+                return currentCart;
+            }
+            set
+            {
+                currentCart = value;
+                
+                if(!carts.ContainsKey(currentCart))
+                {
+                    carts[currentCart] = new List<Item>();
+                }
+            }
+        }
+
+        public List<Item> CartItems => carts[CurrentCart];
+        public List<string> AllNames => carts.Keys.ToList();
+
+        public void SwitchCart(string name)
+        {
+            CurrentCart = name;
+            CartChange?.Invoke(this, EventArgs.Empty);
+        }
+        //change carts implementation end
+
+        /*
         public List<Item> CartItems
         {
             get
@@ -22,6 +59,8 @@ namespace Library.eCommerce.Services
                 return items;
             }
         }
+        */
+
         public static ShoppingCartService Current {
             get
             {
@@ -34,11 +73,9 @@ namespace Library.eCommerce.Services
             }
         }
 
+        //public Action<object, object> InventoryChange { get; set; }
+
         private static ShoppingCartService? instance;
-        private ShoppingCartService() 
-        {
-            items = new List<Item>();
-        }
 
         //Add or update function for the users shopping cart
         public Item? AddOrUpdate(Item item)
@@ -66,6 +103,53 @@ namespace Library.eCommerce.Services
             }
 
             return existingInvItem;
+        }
+
+        public int numAdd(Item item, int quantity)
+        {
+            if(quantity < 1 || item == null)
+            {
+                return 0;
+            }
+
+            var invItem = _prodSvc.GetById(item.Id);
+
+            if(invItem == null)
+            {
+                return 0;
+            }
+
+            int ableToAdd = Math.Min(quantity, invItem.Quantity ?? 0);
+
+            if(ableToAdd == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                invItem.Quantity -= ableToAdd;
+            }
+
+            var cartItem = CartItems.FirstOrDefault(i => i.Id == item.Id);
+
+            if(cartItem != null)
+            {
+                cartItem.Quantity += ableToAdd;
+            }
+            else
+            {
+                cartItem = new Item(item)
+                {
+                    Quantity = ableToAdd
+                };
+
+                CartItems.Add(cartItem);
+            }
+
+            InvChange?.Invoke(this, EventArgs.Empty);
+            CartChange?.Invoke(this, EventArgs.Empty);
+
+            return ableToAdd;
         }
 
         public Item? ReturnItem(Item item)
@@ -131,8 +215,11 @@ namespace Library.eCommerce.Services
                 stringBuild.AppendLine($"{i.Product.Name,-18} x{quantity,-3}  {price,6:C2}");
             }
 
-            var total = Math.Round(subtotal * 1.07, 2);
+            double _taxRate = TaxRateService.Current.TaxRate;
+            double TaxAmount = Math.Round(subtotal * _taxRate, 2);
+            double total = Math.Round(subtotal + TaxAmount, 2);
 
+            stringBuild.AppendLine($"Tax ({_taxRate:P0}):".PadRight(22) + $"{TaxAmount,10:C2}");
             stringBuild.AppendLine(new string('-', 30));
             stringBuild.AppendLine($"{"Subtotal:",-22}{subtotal,10:C2}");
             stringBuild.AppendLine($"{"Total:",-22}{total,10:C2}");

@@ -28,5 +28,9 @@
         Title="Receipt"
         ContentTemplate="{DataTemplate views:ReceiptView}"
         Route="Receipt" />
+    <ShellContent
+        Title="Tax"
+        ContentTemplate="{DataTemplate views:TaxRateView}"
+        Route="Tax" />
 
 </Shell>
