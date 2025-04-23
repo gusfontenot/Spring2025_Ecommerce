@@ -47,6 +47,7 @@ namespace Maui.eCommerce.ViewModels
         {
             _cartSvc.InvChange += (_, _) => RefreshUX();
             _cartSvc.CartChange += (_, _) => RefreshUX();
+            ProductServiceProxy.Current.InventoryChanged += (_, _) => RefreshUX();
             RefreshRequested += RefreshUX;   
         }
 

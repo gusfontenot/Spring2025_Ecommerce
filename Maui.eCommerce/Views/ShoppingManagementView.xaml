@@ -104,6 +104,7 @@
                 <Button Text="-" Clicked="RemoveFromCartClicked"/>
                 <Button Text="Return All" Clicked="ReturnAllClicked"/>
                 <Button Text="Checkout" Clicked="CheckoutClicked"/>
+                <Button Text="Go Back" Clicked="GoBackClicked"/>
             </VerticalStackLayout>
         </Grid>
         

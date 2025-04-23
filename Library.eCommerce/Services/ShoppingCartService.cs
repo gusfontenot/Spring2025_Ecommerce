@@ -23,7 +23,45 @@ namespace Library.eCommerce.Services
             carts = new Dictionary<string, List<Item>>();
             currentCart = "Default";
             carts[currentCart] = new List<Item>();
+            ProductServiceProxy.Current.ProductRemoved += OnProductRemoved;
+            ProductServiceProxy.Current.ProductUpdated += OnProductUpdated;
         }
+
+        private void OnProductRemoved(object? sender, int productId)
+        {
+            foreach(var cart in carts.Values)
+            {
+                var toRemove = cart.FirstOrDefault(i => i.Id == productId);
+
+                if(toRemove != null)
+                {
+                    cart.Remove(toRemove);
+                }
+            }
+
+            CartChange?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnProductUpdated(object? sender, int productId)
+        {
+            var updatedId = _prodSvc.GetById(productId);
+
+            if(updatedId == null)
+            {
+                return;
+            }
+
+            foreach(var item in CartItems)
+            {
+                if(item.Id == productId)
+                {
+                    item.Product = updatedId.Product;
+                }
+            }
+
+            CartChange?.Invoke(this, EventArgs.Empty);
+        }
+
         public string CurrentCart
         {
             get
@@ -209,10 +247,26 @@ namespace Library.eCommerce.Services
 
             foreach(var i in CartItems)
             {
-                var price = i.Product!.Price;
+                var checkInv = _prodSvc.GetById(i.Id);
+                if (checkInv == null)
+                {
+                    continue;
+                }
+
                 var quantity = i.Quantity ?? 0;
+                if (quantity < 1)
+                {
+                    continue;
+                }
+
+                var price = i.Product!.Price;
                 subtotal += (price * quantity);
                 stringBuild.AppendLine($"{i.Product.Name,-18} x{quantity,-3}  {price,6:C2}");
+            }
+
+            if (subtotal == 0)
+            {
+                return "Your shopping cart is empty - no products to purchase.";
             }
 
             double _taxRate = TaxRateService.Current.TaxRate;

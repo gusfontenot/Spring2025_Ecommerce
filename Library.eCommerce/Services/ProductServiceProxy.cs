@@ -24,6 +24,10 @@ namespace Library.eCommerce.Services
             };
         }
 
+        public event EventHandler? InventoryChanged;
+        public event EventHandler<int>? ProductRemoved;
+        public event EventHandler<int>? ProductUpdated;
+
         private static ProductServiceProxy? instance;
         private static object instanceLock = new object();
         public static ProductServiceProxy Current
@@ -77,7 +81,10 @@ namespace Library.eCommerce.Services
                 }
                     
             }
-                return item;
+
+            ProductUpdated?.Invoke(this, item.Id);
+            InventoryChanged?.Invoke(this, EventArgs.Empty);
+            return item;
         }
 
         public Item? Delete(int id)
@@ -88,7 +95,12 @@ namespace Library.eCommerce.Services
             }
 
             Item? product = Products.FirstOrDefault(p => p.Id == id);
-            Products.Remove(product);
+            if(product != null)
+            {
+                Products.Remove(product);
+                InventoryChanged?.Invoke(this, EventArgs.Empty); //notifying inv change to cart
+                ProductRemoved?.Invoke(this, id); //notify the product has been deleted for the cart
+            }
 
             return product;
         }
