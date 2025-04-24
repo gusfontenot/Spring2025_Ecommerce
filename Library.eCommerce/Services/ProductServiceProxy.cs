@@ -24,10 +24,10 @@ namespace Library.eCommerce.Services
             };
         }
 
-        //add to final
+        //Event handlers for when product details or inventory is changed
         public event EventHandler<int>? ProductRemoved;
         public event EventHandler? InventoryChanged;
-        //add to final
+        public event EventHandler<int>? ProdUpdated;
 
         private static ProductServiceProxy? instance;
         private static object instanceLock = new object();
@@ -57,7 +57,7 @@ namespace Library.eCommerce.Services
                 return item;
             }
 
-            if (item.Id == 0)
+            if (item.Id == 0) //creating a new id for a new product that is added
             {
                 int newId = Products.Any() ? Products.Max(p => p?.Id ?? 0) + 1 : 1;
                 item.Id = newId;
@@ -82,7 +82,11 @@ namespace Library.eCommerce.Services
                 }
                     
             }
-                return item;
+
+            //update UI
+            InventoryChanged?.Invoke(this, EventArgs.Empty);
+            ProdUpdated?.Invoke(this, item.Id);
+            return item;
         }
 
         public Item? Delete(int id)

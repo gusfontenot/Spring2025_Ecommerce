@@ -12,7 +12,7 @@ namespace Maui.eCommerce.ViewModels
         {
             get
             {
-                return "Hello, World!";
+                return "Welcome to Amazon!";
             }
         }
     }

@@ -12,6 +12,8 @@ namespace Library.eCommerce.Services
     {
         private ProductServiceProxy _prodSvc = ProductServiceProxy.Current;
         private List<Item> items;
+
+        //Event handlers for UI updates for inventory and cart
         public event EventHandler? InvChange;
         public event EventHandler? CartChange;
 
@@ -38,10 +40,12 @@ namespace Library.eCommerce.Services
         private ShoppingCartService() 
         {
             items = new List<Item>();
-            ProductServiceProxy.Current.ProductRemoved += OnProductRemoved;
+            ProductServiceProxy.Current.ProductRemoved += UIProductRemoved; //UI updated for the current
+            ProductServiceProxy.Current.ProdUpdated += UIProductUpdated; //Ui updated for current
         }
 
-        private void OnProductRemoved(object? sender, int productId)
+        //added this function to update the UI when a product in the SC is then removed in IM
+        private void UIProductRemoved(object? sender, int productId)
         {
             var toRemove = items.FirstOrDefault(i => i.Id == productId);
             if(toRemove != null)
@@ -51,6 +55,27 @@ namespace Library.eCommerce.Services
             }
             
             CartChange?.Invoke(this, EventArgs.Empty);
+        }
+
+        //added this function to update the UI when a product in the SC is then edited in IM
+        private void UIProductUpdated(object? sender, int productId)
+        {
+            var updatedId = _prodSvc.GetById(productId);
+
+            if(updatedId == null)
+            {
+                return;
+            }
+
+            foreach(var item in CartItems)
+            {
+                if(item.Id == productId)
+                {
+                    item.Product = updatedId.Product; //updating the product details
+                }
+            }
+
+            CartChange?.Invoke(this, EventArgs.Empty); //Refreshing the UI here
         }
 
         //Add or update function for the users shopping cart
@@ -106,6 +131,7 @@ namespace Library.eCommerce.Services
             return itemToReturn;
         }
 
+        //function added for if the return all of a product button is clicked
         public bool ReturnAll(Item cartItem)
         {
             if(cartItem == null)
@@ -125,11 +151,12 @@ namespace Library.eCommerce.Services
                 invItem.Quantity += existingItem.Quantity ?? 0;
             }
 
-            CartItems.Remove(existingItem);
-            updateEvents();
+            CartItems.Remove(existingItem); //remove the item completely from the cart
+            updateEvents(); //update UI
             return true;
         }
 
+        //receipt function using stringbuild for constructing an itemized receipt when user checks out
         public string MakeReceipt()
         {
             //need stringbuild
@@ -154,10 +181,12 @@ namespace Library.eCommerce.Services
 
                 var price = i.Product!.Price;
                 subtotal += (price * quantity);
+
+                //printing the products being purchased along with their details
                 stringBuild.AppendLine($"{i.Product.Name,-18} x{quantity,-3}  {price,6:C2}");
             }
 
-            //add to final
+            //When subtotal is zero we will assume the cart is empty since nothing is free
             if(subtotal == 0)
             {
                 return "Your shopping cart is empty - no products to purchase.";
@@ -165,12 +194,14 @@ namespace Library.eCommerce.Services
 
             var total = Math.Round(subtotal * 1.07, 2);
 
+            //Final details of the receipt along with the 30 "-" characters for stylization
             stringBuild.AppendLine(new string('-', 30));
             stringBuild.AppendLine($"{"Subtotal:",-22}{subtotal,10:C2}");
             stringBuild.AppendLine($"{"Total:",-22}{total,10:C2}");
             return stringBuild.ToString();
         }
 
+        //function to help update the UI when changes are made in the Inv or the cart views
         private void updateEvents()
         {
             InvChange?.Invoke(this, EventArgs.Empty);

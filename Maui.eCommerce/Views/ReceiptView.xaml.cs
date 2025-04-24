@@ -11,11 +11,15 @@ public partial class ReceiptView : ContentPage
         InitializeComponent();          
     }
 
+    //receipt string
     private string _receipt = string.Empty;
 
     public string Receipt
     {
-        get => _receipt;
+        get
+        {
+            return _receipt;
+        }
         set
         {
             //Store the text

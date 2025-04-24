@@ -18,11 +18,22 @@ namespace Maui.eCommerce.ViewModels
         public ItemViewModel? SelectedItem { get; set; }
         public ItemViewModel? SelectedCartItem { get; set; }
 
-        //probably add this stuff
+       
         public ShoppingManagementViewModel()
         {
-            ProductServiceProxy.Current.InventoryChanged += (_, _) => RefreshUX();
-            ShoppingCartService.Current.CartChange += (_, _) => RefreshUX();
+            ProductServiceProxy.Current.InventoryChanged += invUpdate; //refresh ui
+            ShoppingCartService.Current.CartChange += cartUpdate; //refresh ui
+        }
+
+        //function to update UI for inv changes
+        private void invUpdate(object sender, EventArgs e)
+        {
+            RefreshUX();
+        }
+        //function to update UI for cart changes
+        private void cartUpdate(object sender, EventArgs e)
+        {
+            RefreshUX();
         }
 
         public ObservableCollection<ItemViewModel?> Inventory
@@ -94,6 +105,7 @@ namespace Maui.eCommerce.ViewModels
             }
         }
 
+        //function for when return all button is clicked for a product in the cart
         public void ReturnAll()
         {
             if(SelectedCartItem == null)
@@ -103,19 +115,20 @@ namespace Maui.eCommerce.ViewModels
 
             bool success = _cartSvc.ReturnAll(SelectedCartItem.Model);
         
-            if(success == true)
+            if(success == true) //update UI if successful
             {
                 NotifyPropertyChanged(nameof(Inventory));
                 NotifyPropertyChanged(nameof(ShoppingCart));
             }
         }
 
+        //checkout function that calls the makereceipt function from the SCS file
         public string Checkout()
         {
             string receipt = _cartSvc.MakeReceipt();
             _cartSvc.CartItems.Clear();
-            NotifyPropertyChanged(nameof(Inventory));
-            NotifyPropertyChanged(nameof(ShoppingCart));
+            NotifyPropertyChanged(nameof(Inventory)); //update ui
+            NotifyPropertyChanged(nameof(ShoppingCart)); //update ui
             return receipt;
         }
     }

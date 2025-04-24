@@ -32,13 +32,14 @@ public partial class ShoppingManagementView : ContentPage
 
     private void CheckoutClicked(object sender, EventArgs e)
     {
-        var vm = BindingContext as ShoppingManagementViewModel;
-        if (vm == null)
+        var viewModel = BindingContext as ShoppingManagementViewModel;
+        if (viewModel == null)
         {
             return;
         }
-        string receipt = vm.Checkout();
-
+        //go through with checkout
+        string receipt = viewModel.Checkout();
+        //goto receipt page
         Shell.Current.GoToAsync($"//Receipt?receipt={(receipt)}");
     }
 
