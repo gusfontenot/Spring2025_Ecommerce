@@ -21,44 +21,15 @@ namespace Maui.eCommerce.ViewModels
         //sort begin
         public string SortOption { get; set; } = "Name";
 
-        public ObservableCollection<ItemViewModel?> Inventory =>
-        new(_invSvc.Products
-            .Where(i => i?.Quantity > 0)
-            .OrderBy(i => SortOption == "Price" ? i?.Product.Price : 0)
-            .ThenBy(i => SortOption == "Name" ? i?.Product.Name : "")
-            .Select(m => new ItemViewModel(m)));
-
-        public ObservableCollection<ItemViewModel?> ShoppingCart =>
-            new(_cartSvc.CartItems
-                .Where(i => i?.Quantity > 0)
-                .OrderBy(i => SortOption == "Price" ? i?.Product.Price : 0)
-                .ThenBy(i => SortOption == "Name" ? i?.Product.Name : "")
-                .Select(m => new ItemViewModel(m)));
-
-        //sort end
-
-        public static event Action? RefreshRequested;
-        internal static void RefreshStatic()
-        {
-            RefreshRequested?.Invoke();
-        }
-
-        public ShoppingManagementViewModel()
-        {
-            _cartSvc.InvChange += (_, _) => RefreshUX();
-            _cartSvc.CartChange += (_, _) => RefreshUX();
-            ProductServiceProxy.Current.InventoryChanged += (_, _) => RefreshUX();
-            RefreshRequested += RefreshUX;   
-        }
-
-        /*
         public ObservableCollection<ItemViewModel?> Inventory
         {
             get
             {
-                return new ObservableCollection<ItemViewModel?>(_invSvc.Products
-                    .Where(i => i?.Quantity > 0).Select(m => new ItemViewModel(m))
-                    );
+                return new(_invSvc.Products
+                .Where(i => i?.Quantity > 0)
+                .OrderBy(i => SortOption == "Price" ? i?.Product.Price : 0)
+                .ThenBy(i => SortOption == "Name" ? i?.Product.Name : "")
+                .Select(m => new ItemViewModel(m)));
             }
         }
 
@@ -66,12 +37,44 @@ namespace Maui.eCommerce.ViewModels
         {
             get
             {
-                return new ObservableCollection<ItemViewModel?>(_cartSvc.CartItems
-                    .Where(i => i?.Quantity > 0).Select(m => new ItemViewModel(m))
-                    );
+                return new(_cartSvc.CartItems
+                .Where(i => i?.Quantity > 0)
+                .OrderBy(i => SortOption == "Price" ? i?.Product.Price : 0)
+                .ThenBy(i => SortOption == "Name" ? i?.Product.Name : "")
+                .Select(m => new ItemViewModel(m)));
             }
         }
-        */
+        //sort end
+
+        public static event Action? RefreshRequested;
+        internal static void RefreshStatic()
+        {
+            RefreshRequested?.Invoke(); //invoke the requested refresh
+        }
+
+        public ShoppingManagementViewModel()
+        {
+            //UI updates
+            _cartSvc.InvChange += invChanged;
+            _cartSvc.CartChange += cartChanged;
+            ProductServiceProxy.Current.InventoryChanged += productInvChanged;
+            RefreshRequested += RefreshUX;   
+        }
+
+        private void invChanged(object sender, EventArgs e)
+        {
+            RefreshUX();
+        }
+
+        private void cartChanged(object sender, EventArgs e)
+        {
+            RefreshUX();
+        }
+
+        private void productInvChanged(object sender, EventArgs e)
+        {
+            RefreshUX();
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

@@ -26,7 +26,7 @@ namespace Maui.eCommerce.ViewModels
                 }
 
                 _ratePercent = value;
-                OnPropertyChanged(nameof(RatePercent));
+                propertyChanged(nameof(RatePercent));
             }
         }
 
@@ -36,7 +36,7 @@ namespace Maui.eCommerce.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string prop)
+        private void propertyChanged(string prop)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }

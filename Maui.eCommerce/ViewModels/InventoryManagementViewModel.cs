@@ -35,35 +35,46 @@ namespace Maui.eCommerce.ViewModels
             NotifyPropertyChanged(nameof(Products));
         }
 
+        //enumeration for sorting by Name or by Price
         public enum SortOption
         {
             Name,
             Price
         }
 
+        //setting sorting method, the default is to sort by name
         public SortOption SelectedSortOption { get; set; } = SortOption.Name;
 
+        //returns the sorted list
         public ObservableCollection<Item?> Products
         {
             get
-            {
+            {   //sorting the list of products based on search query, and it is not case sensitive
                 var filtered = _svc.Products
                     .Where(p => p?.Product?.Name?.ToLower().Contains(Query?.ToLower() ?? string.Empty) ?? false);
 
-                IEnumerable<Item?> sorted = SelectedSortOption switch
-                {
-                    SortOption.Price => filtered.OrderBy(p => p?.Product?.Price),
-                    _ => filtered.OrderBy(p => p?.Product?.Name)
-                };
+                //Here it is sorting based on the sort option, either name or price
+                IEnumerable<Item?> sorted;
 
-                return new ObservableCollection<Item?>(sorted);
+                if(SelectedSortOption == SortOption.Price)
+                {
+                    sorted = filtered.OrderBy(p => p?.Product?.Price);
+                }
+                else
+                {
+                    sorted = filtered.OrderBy(p => p?.Product?.Name);
+                }
+
+                    //returning the sorted items
+                    return new ObservableCollection<Item?>(sorted);
             }
         }
 
+        //function to allow specification of sorting method
         public void SetSort(SortOption option)
         {
             SelectedSortOption = option;
-            RefreshProductList();
+            RefreshProductList(); //notify UI
         }
 
         public Item? Delete()

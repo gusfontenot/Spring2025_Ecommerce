@@ -11,6 +11,7 @@ namespace Library.eCommerce.Services
     public class ShoppingCartService
     {
         private ProductServiceProxy _prodSvc = ProductServiceProxy.Current;
+        //Event handlers for UI updates for inventory and cart
         public event EventHandler? InvChange;
         public event EventHandler? CartChange;
 
@@ -21,13 +22,16 @@ namespace Library.eCommerce.Services
         private ShoppingCartService()
         {
             carts = new Dictionary<string, List<Item>>();
-            currentCart = "Default";
+            currentCart = "Default"; //current cart on startup is default cart
             carts[currentCart] = new List<Item>();
-            ProductServiceProxy.Current.ProductRemoved += OnProductRemoved;
-            ProductServiceProxy.Current.ProductUpdated += OnProductUpdated;
+            
+            //UI updates for product removal/details updated
+            ProductServiceProxy.Current.ProductRemoved += productRemoved;
+            ProductServiceProxy.Current.ProductUpdated += productUpdated;
         }
 
-        private void OnProductRemoved(object? sender, int productId)
+        //function for removing item from inventory and updating the UI in real tiem
+        private void productRemoved(object? sender, int productId)
         {
             foreach(var cart in carts.Values)
             {
@@ -38,11 +42,12 @@ namespace Library.eCommerce.Services
                     cart.Remove(toRemove);
                 }
             }
-
+            //notify of change in cart
             CartChange?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnProductUpdated(object? sender, int productId)
+        //function for when a product is updated while in the cart so the UI reflects the changes
+        private void productUpdated(object? sender, int productId)
         {
             var updatedId = _prodSvc.GetById(productId);
 
@@ -58,7 +63,7 @@ namespace Library.eCommerce.Services
                     item.Product = updatedId.Product;
                 }
             }
-
+            //notify of changes in the cart
             CartChange?.Invoke(this, EventArgs.Empty);
         }
 
@@ -79,25 +84,27 @@ namespace Library.eCommerce.Services
             }
         }
 
-        public List<Item> CartItems => carts[CurrentCart];
-        public List<string> AllNames => carts.Keys.ToList();
+        public List<Item> CartItems
+        {
+            get
+            {
+                return carts[CurrentCart]; //list of items currently in cart
+            }
+        }
+        public List<string> AllNames
+        {
+            get
+            {
+                return carts.Keys.ToList(); //list of all cart names
+            }
+        }
 
+        //function for switching to a different shopping cart
         public void SwitchCart(string name)
         {
             CurrentCart = name;
             CartChange?.Invoke(this, EventArgs.Empty);
         }
-        //change carts implementation end
-
-        /*
-        public List<Item> CartItems
-        {
-            get
-            {
-                return items;
-            }
-        }
-        */
 
         public static ShoppingCartService Current {
             get
@@ -110,8 +117,6 @@ namespace Library.eCommerce.Services
                 return instance;
             }
         }
-
-        //public Action<object, object> InventoryChange { get; set; }
 
         private static ShoppingCartService? instance;
 
@@ -143,6 +148,7 @@ namespace Library.eCommerce.Services
             return existingInvItem;
         }
 
+        //Function for the inline text box functionality for specifying different quantities of a product to add to the cart
         public int numAdd(Item item, int quantity)
         {
             if(quantity < 1 || item == null)
@@ -157,9 +163,10 @@ namespace Library.eCommerce.Services
                 return 0;
             }
 
+            //min number to be able to add
             int ableToAdd = Math.Min(quantity, invItem.Quantity ?? 0);
 
-            if(ableToAdd == 0)
+            if(ableToAdd == 0) //return if none
             {
                 return 0;
             }
@@ -184,10 +191,11 @@ namespace Library.eCommerce.Services
                 CartItems.Add(cartItem);
             }
 
+            //notify of changes in the inventory and cart
             InvChange?.Invoke(this, EventArgs.Empty);
             CartChange?.Invoke(this, EventArgs.Empty);
 
-            return ableToAdd;
+            return ableToAdd; //return num to add to cart
         }
 
         public Item? ReturnItem(Item item)
@@ -215,6 +223,7 @@ namespace Library.eCommerce.Services
             return itemToReturn;
         }
 
+        //function added for if the return all of a product button is clicked
         public bool ReturnAll(Item cartItem)
         {
             if(cartItem == null)
@@ -234,11 +243,12 @@ namespace Library.eCommerce.Services
                 invItem.Quantity += existingItem.Quantity ?? 0;
             }
 
-            CartItems.Remove(existingItem);
-            updateEvents();
+            CartItems.Remove(existingItem); //remove the item completely from the cart
+            updateEvents(); //update UI
             return true;
         }
 
+        //receipt function using stringbuild for constructing an itemized receipt when user checks out
         public string MakeReceipt()
         {
             //need stringbuild
@@ -261,18 +271,22 @@ namespace Library.eCommerce.Services
 
                 var price = i.Product!.Price;
                 subtotal += (price * quantity);
+
+                //printing the products being purchased along with their details
                 stringBuild.AppendLine($"{i.Product.Name,-18} x{quantity,-3}  {price,6:C2}");
             }
 
+            //When subtotal is zero we will assume the cart is empty since nothing is free
             if (subtotal == 0)
             {
                 return "Your shopping cart is empty - no products to purchase.";
             }
 
-            double _taxRate = TaxRateService.Current.TaxRate;
-            double TaxAmount = Math.Round(subtotal * _taxRate, 2);
+            double _taxRate = TaxRateService.Current.TaxRate; //specified tax rate by user
+            double TaxAmount = Math.Round(subtotal * _taxRate, 2); //sales tax value
             double total = Math.Round(subtotal + TaxAmount, 2);
 
+            //Final details of the receipt along with the 30 "-" characters for stylization
             stringBuild.AppendLine($"Tax ({_taxRate:P0}):".PadRight(22) + $"{TaxAmount,10:C2}");
             stringBuild.AppendLine(new string('-', 30));
             stringBuild.AppendLine($"{"Subtotal:",-22}{subtotal,10:C2}");
@@ -280,6 +294,7 @@ namespace Library.eCommerce.Services
             return stringBuild.ToString();
         }
 
+        //function to help update the UI when changes are made in the Inv or the cart views
         private void updateEvents()
         {
             InvChange?.Invoke(this, EventArgs.Empty);

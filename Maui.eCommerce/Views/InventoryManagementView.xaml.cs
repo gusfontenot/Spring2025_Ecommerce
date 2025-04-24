@@ -43,6 +43,7 @@ public partial class InventoryManagementView : ContentPage
         (BindingContext as InventoryManagementViewModel)?.RefreshProductList();
     }
 
+    //Using a picker to specify either Name or price for the sorting method
     private void SortChanged(object sender, EventArgs e)
     {
         var picker = sender as Picker;

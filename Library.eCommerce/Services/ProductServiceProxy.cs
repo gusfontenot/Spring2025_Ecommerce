@@ -24,6 +24,7 @@ namespace Library.eCommerce.Services
             };
         }
 
+        //Event handlers for when product details or inventory is changed
         public event EventHandler? InventoryChanged;
         public event EventHandler<int>? ProductRemoved;
         public event EventHandler<int>? ProductUpdated;
@@ -56,7 +57,7 @@ namespace Library.eCommerce.Services
                 return item;
             }
 
-            if (item.Id == 0)
+            if (item.Id == 0) //creating a new id for a new product that is added
             {
                 int newId = Products.Any() ? Products.Max(p => p?.Id ?? 0) + 1 : 1;
                 item.Id = newId;
@@ -82,6 +83,7 @@ namespace Library.eCommerce.Services
                     
             }
 
+            //update UI
             ProductUpdated?.Invoke(this, item.Id);
             InventoryChanged?.Invoke(this, EventArgs.Empty);
             return item;

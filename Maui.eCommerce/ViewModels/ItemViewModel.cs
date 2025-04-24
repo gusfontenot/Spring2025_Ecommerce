@@ -13,7 +13,7 @@ namespace Maui.eCommerce.ViewModels
     {
         public Item Model { get; set; }
 
-        public string QuantityText { get; set; } = "1"; //making the default quant 1 for text box
+        public string QuantityText { get; set; } = "1"; //making the default quantity 1 for text box
 
         public ICommand? AddCommand { get; set; }
 
@@ -35,11 +35,13 @@ namespace Maui.eCommerce.ViewModels
     
         private void AddToCart()
         {
+            //making sure valid input for adding to cart
             if(!int.TryParse(QuantityText, out int quantity) || quantity < 1)
             {
                 return;
             }
 
+            //adding specified quantity to cart once verified as valid
             int add = ShoppingCartService.Current.numAdd(Model, quantity);
 
             if(add > 0)
